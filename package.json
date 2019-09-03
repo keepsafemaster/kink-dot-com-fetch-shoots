@@ -1,0 +1,16 @@
+{
+  "name": "kink-dot-com-fetch-shoots",
+  "version": "1.0.0",
+  "description": "",
+  "main": "cypress/integration/index.js",
+  "scripts": {
+    "start": "cypress run",
+    "test": "cypress open"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "cypress": "^3.4.1",
+    "node-fetch": "^2.6.0"
+  }
+}
