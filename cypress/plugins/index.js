@@ -27,8 +27,45 @@ module.exports = (on, config) => {
           }
       }).then(res => res.blob())
         .then(function(res) {
-          return res.stream().pipe(fs.createWriteStream('./downloads/'.concat(name)));
+          console.log('Downloading file from: '.concat(url));
+
+          if (!fs.existsSync('./downloads')) {
+            fs.mkdirSync('./downloads');
+          }
+
+          const path = './downloads/'.concat(name);
+          fs.writeFileSync(path, 'Still downloading...');
+          return res.stream().pipe(fs.createWriteStream(path));
         });
+    },
+
+    verify () {
+        if (!fs.existsSync('./login.info')) {
+          throw new Error('No "login.info" file found');
+        }
+
+        const file = fs.readFileSync('./login.info', 'utf8');
+        const values = file.split('\n')
+          .filter(value => value)
+          .filter(value => value.trim().length > 0);
+
+        if (values.length < 1) {
+          throw new Error('A username is missing from the "login.info" file');
+        } 
+        if (values.length < 2) {
+          throw new Error('A password is missing from the "login.info" file');
+        } 
+
+        if (!fs.existsSync('./shoot.list')) {
+          throw new Error('No "shoot.list" file found');
+        }
+
+        const links = fs.readFileSync('./shoot.list', 'utf8').split('\n');
+        if (links.length < 1) {
+          throw new Error('Zero shoot links were given in the "shoot.list" file');
+        }
+
+        return null;
     }
   });
 }
