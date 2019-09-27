@@ -1,5 +1,6 @@
 const fetch = require('node-fetch');
 const fs = require('fs');
+const request = require('request');
 
 // ***********************************************************
 // This example plugins/index.js can be used to load plugins
@@ -14,29 +15,46 @@ const fs = require('fs');
 // This function is called when a project is opened or re-opened (e.g. due to
 // the project's config changing)
 
+let complete;
+
+function wait(resolve) {
+  setTimeout(() => {
+    if (complete) {
+      complete = false;
+      resolve(true);
+    } else {
+      wait(resolve);
+    }
+  }, 5000);
+}
+
 module.exports = (on, config) => {
   // `on` is used to hook into various events Cypress emits
   // `config` is the resolved Cypress config
 
   on('task', {
     getVideo ({url, name}) {
-      return fetch(url, {
-          method: 'get',
-          headers: {
-              'Content-type': 'application/octet-stream',
-          }
-      }).then(res => res.blob())
-        .then(function(res) {
-          console.log('Downloading file from: '.concat(url));
+      console.log('\nDownloading file from: '.concat(url));
+      if (!fs.existsSync('./downloads')) {
+        fs.mkdirSync('./downloads');
+      }
 
-          if (!fs.existsSync('./downloads')) {
-            fs.mkdirSync('./downloads');
-          }
+      const path = './downloads/'.concat(name);
+      fs.writeFileSync(path, 'Still downloading...');
 
-          const path = './downloads/'.concat(name);
-          fs.writeFileSync(path, 'Still downloading...');
-          return res.stream().pipe(fs.createWriteStream(path));
-        });
+      const response = request(url);
+      response.pipe(fs.createWriteStream(path));
+      response.on('end', () => {
+        console.log('\t||');
+        console.log('\t||');
+        console.log('\t||');
+        console.log('\t||=====> Done: '.concat(name));
+        console.log('');
+        complete = true;
+      });
+      return new Promise((resolve) => {
+        wait(resolve);
+      });
     },
 
     verify () {
