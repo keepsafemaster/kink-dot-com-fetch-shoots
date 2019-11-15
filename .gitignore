@@ -1,6 +1,8 @@
 node_modules/
+downloads/
 login.info
 shoot.list
 collect-links.list
 completed.list
 links.list
+.DS_Store
